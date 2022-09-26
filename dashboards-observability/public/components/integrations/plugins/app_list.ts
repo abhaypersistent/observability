@@ -23,4 +23,10 @@ export const apps = [
     path: 'create?type=integration',
     description: 'Monitor connection and request metrics with Kibana',
   },
+  {
+    name: 'Apache',
+    icon: 'Apache',
+    path: 'create?type=integration&app=Apache',
+    description: 'Monitor connection and request metrics with Apache',
+  }
 ];

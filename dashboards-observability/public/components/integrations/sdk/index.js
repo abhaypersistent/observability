@@ -8,36 +8,43 @@ const readline = require('readline');
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 const prompt = (query) => new Promise((resolve) => rl.question(query, resolve));
 
+const availableModule = { 
+  'nginx':'nginx',
+  'apache':'apache', 
+  'mongodb':'mongodb', 
+  'mysql':'mysql', 
+  'postgres': 'postgres' 
+};
+
+var actionName = [];
+
 (async() => {
   try {
     const name = await prompt("Action Name: ");
+    actionName = name.split(" ");
 
-    var actionName = name.split(" ");
     switch (actionName[0]) {
-      case 'nginx':
-        createFileStructure(actionName[0]);
+      case availableModule[actionName[0]]:
+        createFileStructure(actionName[0]);        
         break;
-      
-      case 'apache':
-        createFileStructure(actionName[0]);
-        break;
-        
+
       case 'clean':
         cleanFolder(path.join(__dirname, `../plugins/${actionName[1]}`));
+        rl.close();
         break;  
     
       default:
         console.log("Please Provide Appropriate input");
+        rl.close();
         break;
     }
     // const lastName = await prompt(`Thanks for the test`);
-    rl.close();
+    
   } catch (e) {
     console.error("Unable to prompt", e);
   }
 })();
 
-// When done reading prompt, exit program 
 rl.on('close', () => process.exit(0));
 
 async function createFileStructure(fi){
@@ -47,7 +54,8 @@ async function createFileStructure(fi){
         fs.writeFile(`${file}/index.tsx`, indexTemplate.content.replace(/{file}/gi,fi[0].toUpperCase() + fi.slice(1)), function (err) {
           if (err) throw err;
         });
-        const compl = await createSubFolder(file);
+        await createSubFolder(file);
+        rl.close();
     }else{
         onErr('Already Existed');
     }
@@ -57,18 +65,18 @@ function onErr(msg){
   console.log(msg);
 }
 
-async function createFilesInFolder(dirName,parent){
-  folderFile[dirName].map((file) => {
-    fs.writeFile(`${parent}/${dirName}/${file}`, '', function (err) {
-      if (err) throw err;
-    });
-  })
-};
-
 var folderFile = {
   doc :["constant.tsx", "index.tsx"],
   schema :["schema.ts"]
   // tabs: ["index.tsx"]
+};
+
+function createFilesInFolder(dirName,parent){
+  console.log("In the filname");
+  folderFile[dirName].map((file) => {
+    const fileContent = indexTemplate[actionName[0]+''+file.split('.')[0]];
+    fs.writeFileSync(`${parent}/${dirName}/${file}`, fileContent);
+  })
 };
 
 async function createSubFolder(parent) {
@@ -79,9 +87,7 @@ async function createSubFolder(parent) {
       .then((res) => {
         if(fs.existsSync(`${parent}/${dirname}`)){
           createFilesInFolder(dirname,parent);
-          // console.log(folderFile[dirname]);
-          // console.log(dirname);
-          console.log(fs.existsSync(`${parent}/${dirname}`));
+
         }
       })
       .catch((err) => {console.error(err)}))
