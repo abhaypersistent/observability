@@ -101,6 +101,7 @@ export interface ILogExplorerProps {
 }
 
 export interface IExplorerProps {
+  appType?: string;
   pplService: PPLService;
   dslService: DSLService;
   tabId: string;
@@ -321,4 +322,8 @@ export interface DataConfigPanelProps {
   fieldOptionList: IField[];
   visualizations: IVisualizationContainerProps;
   qm?: QueryManager;
+}
+export interface GetTooltipHoverInfoType {
+  tooltipMode: string;
+  tooltipText: string;
 }

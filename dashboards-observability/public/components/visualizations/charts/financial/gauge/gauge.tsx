@@ -30,7 +30,7 @@ export const Gauge = ({ visualizations, layout, config }: any) => {
   const dimensions = dataConfig?.dimensions
     ? dataConfig.dimensions.filter((item) => item.name !== '')
     : [];
-  const metrics = dataConfig?.metrics ? dataConfig.metrics.filter((item) => item.name !== '') : [];
+  const metrics = dataConfig?.metrics ? dataConfig.metrics : [];
   const dimensionsLength = dimensions.length;
   const metricsLength = metrics.length;
   const numberOfGauges = dataConfig?.panelOptions?.numberOfGauges || DisplayDefaultGauges;
@@ -43,7 +43,13 @@ export const Gauge = ({ visualizations, layout, config }: any) => {
   const showThresholdLabels = dataConfig?.chartStyles?.showThresholdLabels || false;
   const orientation = dataConfig?.chartStyles?.orientation || OrientationDefault;
   const legendPlacement = dataConfig?.chartStyles?.legendPlacement || LegendPlacement;
-
+  
+  console.log('===============================================1========');
+  console.log(metricsLength);
+  console.log(dataConfig);
+  console.log(metrics);
+  console.log(dimensions);
+  console.log('===============================================1========');
   const isEmptyPlot = !metricsLength;
 
   if (isEmptyPlot) return <EmptyPlaceholder icon={visualizations?.vis?.icontype} />;
