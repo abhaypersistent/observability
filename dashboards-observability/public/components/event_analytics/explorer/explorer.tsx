@@ -927,7 +927,6 @@ export const Explorer = ({
       if (selectedContentTabId === TAB_CHART_ID) {
         // parse stats section on every search
         const statsTokens = queryManager.queryParser().parse(tempQuery).getStats();
-
         const updatedDataConfig = getUpdatedDataConfig(statsTokens);
         await dispatch(
           changeVizConfig({
