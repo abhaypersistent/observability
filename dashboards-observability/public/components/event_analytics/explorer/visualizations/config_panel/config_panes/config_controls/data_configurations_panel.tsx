@@ -27,6 +27,7 @@ import { change as changeVizConfig } from '../../../../../redux/slices/viualizat
 import {
   AGGREGATIONS,
   AGGREGATION_OPTIONS,
+  CUSTOM_LABEL,
   GROUPBY,
   RAW_QUERY,
   TIME_INTERVAL_OPTIONS,
@@ -43,7 +44,7 @@ const initialDimensionEntry = {
 };
 
 const initialSeriesEntry = {
-  alias: '',
+  [CUSTOM_LABEL]: '',
   label: '',
   name: '',
   aggregation: 'count',
@@ -114,7 +115,7 @@ export const DataConfigPanelItem = ({
     let listItem = { ...list[name][index] };
     listItem = {
       ...listItem,
-      [field === 'custom_label' ? 'alias' : field]: value,
+      [field]: value,
     };
     if (field === 'label') {
       listItem.name = value;
@@ -306,9 +307,9 @@ export const DataConfigPanelItem = ({
                     <EuiFormRow label="Custom label">
                       <EuiFieldText
                         placeholder="Custom label"
-                        value={singleField.custom_label}
+                        value={singleField[CUSTOM_LABEL]}
                         onChange={(e) =>
-                          updateList(e.target.value, index, sectionName, 'custom_label')
+                          updateList(e.target.value, index, sectionName, CUSTOM_LABEL)
                         }
                         aria-label="Use aria labels when no actual label is in use"
                       />

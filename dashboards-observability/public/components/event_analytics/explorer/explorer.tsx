@@ -53,6 +53,7 @@ import {
   DATE_PICKER_FORMAT,
   GROUPBY,
   AGGREGATIONS,
+  CUSTOM_LABEL,
 } from '../../../../common/constants/explorer';
 import {
   PPL_STATS_REGEX,
@@ -899,10 +900,12 @@ export const Explorer = ({
             label: agg.function?.value_expression,
             name: agg.function?.value_expression,
             aggregation: agg.function?.name,
+            [CUSTOM_LABEL]: agg[CUSTOM_LABEL],
           })),
           [GROUPBY]: groupByToken?.group_fields?.map((agg) => ({
             label: agg.name ?? '',
             name: agg.name ?? '',
+            [CUSTOM_LABEL]: agg[CUSTOM_LABEL] ?? '',
           })),
           span,
         };
