@@ -48,7 +48,8 @@ import {
 } from '../../../common/constants/custom_panels';
 import { AllApps } from '../integrations/plugins/all_apps';
 import { fetchAppById } from '../application_analytics/helpers/utils';
-import { INTEGRATION, QUERY_VIS_TYPES } from '../../../common/constants/shared';
+import { INTEGRATION } from '../../../common/constants/shared';
+import { QUERY_VIS_TYPES } from '../integrations/plugins/nginx/constant/shared';
 
 export type AppAnalyticsCoreDeps = TraceAnalyticsCoreDeps;
 
@@ -191,7 +192,8 @@ export const Home = (props: HomeProps) => {
     applicationId: string,
     appName: string,
     type: string,
-    appType?: string | null
+    appType?: string | null,
+    basQuery?: string
   ) => {
     return http
       .post(`${CUSTOM_PANELS_API_PREFIX}/panels`, {
@@ -201,7 +203,7 @@ export const Home = (props: HomeProps) => {
         }),
       })
       .then((res) => {
-        updateApp(applicationId, { panelId: res.newPanelId }, type, appName, appType);
+        updateApp(applicationId, { panelId: res.newPanelId }, type, appName, appType, basQuery);
       })
       .catch((err) => {
         setToast(
@@ -311,11 +313,11 @@ export const Home = (props: HomeProps) => {
   };
 
   // need to move to common , copied from explorer
-  const handleSavingObject = (appId, appName, type, panelId, chartObj) => {
+  const handleSavingObject = (appId, appName, type, panelId, chartObj, baseQuery) => {
     // create new saved visualization
     savedObjects
       .createSavedVisualization({
-        query: chartObj.query,
+        query: `${baseQuery}${chartObj.query}`,
         fields: [],
         dateRange: ['now/y', 'now'],
         type: chartObj.type,
@@ -371,6 +373,9 @@ export const Home = (props: HomeProps) => {
       return;
     }
 
+    console.log("-----------------------------------1-------------");
+    console.log(application);
+    console.log("-----------------------------------1-------------");
     const requestBody = {
       name: application.name,
       description: application.description || '',
@@ -386,7 +391,7 @@ export const Home = (props: HomeProps) => {
         body: JSON.stringify(requestBody),
       })
       .then(async (res) => {
-        createPanelForApp(res.newAppId, application.name, type, appTypeIntegration);
+        createPanelForApp(res.newAppId, application.name, type, appTypeIntegration, application.baseQuery);
         // setToast(`Application "${application.name}" successfully created!`);
         clearStorage();
       })
@@ -439,7 +444,8 @@ export const Home = (props: HomeProps) => {
     updateAppData: Partial<ApplicationRequestType>,
     type: string,
     appName?: string,
-    appType?: string | null
+    appType?: string | null,
+    baseQuery?: string | null,
   ) => {
     const requestBody = {
       appId,
@@ -453,7 +459,7 @@ export const Home = (props: HomeProps) => {
       .then((res) => {
         if (appType === INTEGRATION) {
           for (let i = 0; i < QUERY_VIS_TYPES.length; i++) {
-            handleSavingObject(appId, appName, type, updateAppData.panelId, QUERY_VIS_TYPES[i]);
+            handleSavingObject(appId, appName, type, updateAppData.panelId, QUERY_VIS_TYPES[i], baseQuery);
           }
         }
         if (type === 'update') {
