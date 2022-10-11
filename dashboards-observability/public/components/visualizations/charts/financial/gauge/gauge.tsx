@@ -43,13 +43,6 @@ export const Gauge = ({ visualizations, layout, config }: any) => {
   const showThresholdLabels = dataConfig?.chartStyles?.showThresholdLabels || false;
   const orientation = dataConfig?.chartStyles?.orientation || OrientationDefault;
   const legendPlacement = dataConfig?.chartStyles?.legendPlacement || LegendPlacement;
-  
-  console.log('===============================================1========');
-  console.log(metricsLength);
-  console.log(dataConfig);
-  console.log(metrics);
-  console.log(dimensions);
-  console.log('===============================================1========');
   const isEmptyPlot = !metricsLength;
 
   if (isEmptyPlot) return <EmptyPlaceholder icon={visualizations?.vis?.icontype} />;
