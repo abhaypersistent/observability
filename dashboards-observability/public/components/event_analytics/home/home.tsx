@@ -30,6 +30,7 @@ import {
   EuiText,
   EuiHorizontalRule,
 } from '@elastic/eui';
+import { ErrorBoundary } from 'react-error-boundary';
 import { DeleteModal } from '../../common/helpers/delete_modal';
 import { Search } from '../../common/search/search';
 import {
@@ -59,6 +60,7 @@ import { setSelectedQueryTab } from '../redux/slices/query_tab_slice';
 import { CUSTOM_PANELS_API_PREFIX } from '../../../../common/constants/custom_panels';
 import { getSampleDataModal } from '../../common/helpers/add_sample_modal';
 import { parseGetSuggestions, onItemSelect } from '../../common/search/autocomplete_logic';
+import { Fallback } from '../../Fallback';
 
 interface IHomeProps {
   pplService: any;
@@ -218,6 +220,10 @@ export const Home = (props: IHomeProps) => {
     history.push(`/event_analytics/explorer/${objectId}`);
   };
 
+  const errorHandler = (err: any, errInfo: sytring) => {
+    console.log('error handling ', err, errInfo);
+  };
+
   const addSampledata = async () => {
     setModalLayout(
       getSampleDataModal(closeModal, async () => {
@@ -345,128 +351,134 @@ export const Home = (props: IHomeProps) => {
 
   return (
     <>
-      <EuiPage>
-        <EuiPageBody>
-          <EuiPageHeader>
-            <EuiPageHeaderSection>
-              <EuiTitle data-test-subj="eventHomePageTitle" size="l">
-                <h1>Event analytics</h1>
-              </EuiTitle>
-            </EuiPageHeaderSection>
-          </EuiPageHeader>
-          <EuiPageContent className="event-home">
-            <EuiFlexGroup gutterSize="s">
-              <EuiFlexItem>
-                <Search
-                  query={queryRef.current![RAW_QUERY]}
-                  tempQuery={searchQuery}
-                  handleQueryChange={handleQueryChange}
-                  handleQuerySearch={handleQuerySearch}
-                  handleTimePickerChange={handleTimePickerChange}
-                  handleTimeRangePickerRefresh={handleQuerySearch}
-                  pplService={pplService}
-                  dslService={dslService}
-                  startTime={selectedDateRange[0]}
-                  endTime={selectedDateRange[1]}
-                  setStartTime={() => {}}
-                  setEndTime={() => {}}
-                  showSaveButton={false}
-                  runButtonText="New Query"
-                  getSuggestions={parseGetSuggestions}
-                  onItemSelect={onItemSelect}
-                />
-              </EuiFlexItem>
-            </EuiFlexGroup>
-            <EuiSpacer size="m" />
-          </EuiPageContent>
-          <EuiSpacer size="m" />
-          <EuiPageContent className="event-home">
-            <EuiPageContentHeader>
-              <EuiPageContentHeaderSection>
-                <EuiTitle size="s">
-                  <h3>
-                    Queries and Visualizations
-                    <span className="panel-header-count"> ({savedHistories.length})</span>
-                  </h3>
+      <ErrorBoundary fallback={Fallback} onError={errorHandler}>
+        <EuiPage>
+          <EuiPageBody>
+            <EuiPageHeader>
+              <EuiPageHeaderSection>
+                <EuiTitle data-test-subj="eventHomePageTitle" size="l">
+                  <h1>Event analytics</h1>
                 </EuiTitle>
-                <EuiSpacer size="s" />
-                <EuiText size="s" color="subdued">
-                  Use Events Analytics to monitor, correlate, analyze and visualize machine
-                  generated data through Piped Processing Language. Save frequently searched queries
-                  and visualizations for quick access{' '}
-                  <EuiLink external={true} href={EVENT_ANALYTICS_DOCUMENTATION_URL} target="blank">
-                    Learn more
-                  </EuiLink>
-                </EuiText>
-              </EuiPageContentHeaderSection>
-              <EuiPageContentHeaderSection>
-                <EuiFlexGroup gutterSize="s">
-                  <EuiFlexItem>
-                    <EuiPopover
-                      panelPaddingSize="none"
-                      button={popoverButton}
-                      isOpen={isActionsPopoverOpen}
-                      closePopover={() => setIsActionsPopoverOpen(false)}
-                    >
-                      <EuiContextMenuPanel items={popoverItems} />
-                    </EuiPopover>
-                  </EuiFlexItem>
-                </EuiFlexGroup>
-              </EuiPageContentHeaderSection>
-            </EuiPageContentHeader>
-            <EuiHorizontalRule margin="m" />
-            <EuiFlexGroup>
-              <EuiFlexItem grow={true}>
-                {savedHistories.length > 0 ? (
-                  <SavedQueryTable
-                    savedHistories={savedHistories}
-                    handleHistoryClick={handleHistoryClick}
-                    isTableLoading={isTableLoading}
-                    handleSelectHistory={setSelectedHistories}
-                    selectedHistories={selectedHistories}
+              </EuiPageHeaderSection>
+            </EuiPageHeader>
+            <EuiPageContent className="event-home">
+              <EuiFlexGroup gutterSize="s">
+                <EuiFlexItem>
+                  <Search
+                    query={queryRef.current![RAW_QUERY]}
+                    tempQuery={searchQuery}
+                    handleQueryChange={handleQueryChange}
+                    handleQuerySearch={handleQuerySearch}
+                    handleTimePickerChange={handleTimePickerChange}
+                    handleTimeRangePickerRefresh={handleQuerySearch}
+                    pplService={pplService}
+                    dslService={dslService}
+                    startTime={selectedDateRange[0]}
+                    endTime={selectedDateRange[1]}
+                    setStartTime={() => {}}
+                    setEndTime={() => {}}
+                    showSaveButton={false}
+                    runButtonText="New Query"
+                    getSuggestions={parseGetSuggestions}
+                    onItemSelect={onItemSelect}
                   />
-                ) : (
-                  <>
-                    <EuiSpacer size="xxl" />
-                    <EuiText textAlign="center">
-                      <h2>No Queries or Visualizations</h2>
-                      <EuiSpacer size="m" />
-                      <EuiText color="subdued">
-                        Use events analytics to create and save frequently searched
-                        <br />
-                        queries and visualizations, using PPL.
+                </EuiFlexItem>
+              </EuiFlexGroup>
+              <EuiSpacer size="m" />
+            </EuiPageContent>
+            <EuiSpacer size="m" />
+            <EuiPageContent className="event-home">
+              <EuiPageContentHeader>
+                <EuiPageContentHeaderSection>
+                  <EuiTitle size="s">
+                    <h3>
+                      Queries and Visualizations
+                      <span className="panel-header-count"> ({savedHistories.length})</span>
+                    </h3>
+                  </EuiTitle>
+                  <EuiSpacer size="s" />
+                  <EuiText size="s" color="subdued">
+                    Use Events Analytics to monitor, correlate, analyze and visualize machine
+                    generated data through Piped Processing Language. Save frequently searched
+                    queries and visualizations for quick access{' '}
+                    <EuiLink
+                      external={true}
+                      href={EVENT_ANALYTICS_DOCUMENTATION_URL}
+                      target="blank"
+                    >
+                      Learn more
+                    </EuiLink>
+                  </EuiText>
+                </EuiPageContentHeaderSection>
+                <EuiPageContentHeaderSection>
+                  <EuiFlexGroup gutterSize="s">
+                    <EuiFlexItem>
+                      <EuiPopover
+                        panelPaddingSize="none"
+                        button={popoverButton}
+                        isOpen={isActionsPopoverOpen}
+                        closePopover={() => setIsActionsPopoverOpen(false)}
+                      >
+                        <EuiContextMenuPanel items={popoverItems} />
+                      </EuiPopover>
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
+                </EuiPageContentHeaderSection>
+              </EuiPageContentHeader>
+              <EuiHorizontalRule margin="m" />
+              <EuiFlexGroup>
+                <EuiFlexItem grow={true}>
+                  {savedHistories.length > 0 ? (
+                    <SavedQueryTable
+                      savedHistories={savedHistories}
+                      handleHistoryClick={handleHistoryClick}
+                      isTableLoading={isTableLoading}
+                      handleSelectHistory={setSelectedHistories}
+                      selectedHistories={selectedHistories}
+                    />
+                  ) : (
+                    <>
+                      <EuiSpacer size="xxl" />
+                      <EuiText textAlign="center">
+                        <h2>No Queries or Visualizations</h2>
+                        <EuiSpacer size="m" />
+                        <EuiText color="subdued">
+                          Use events analytics to create and save frequently searched
+                          <br />
+                          queries and visualizations, using PPL.
+                        </EuiText>
                       </EuiText>
-                    </EuiText>
-                    <EuiSpacer size="m" />
-                    <EuiFlexGroup justifyContent="center">
-                      <EuiFlexItem grow={false}>
-                        <EuiButton
-                          fullWidth={false}
-                          onClick={() => history.push(`/event_analytics/explorer`)}
-                          data-test-subj="actionEventExplorer"
-                        >
-                          Event Explorer
-                        </EuiButton>
-                      </EuiFlexItem>
-                      <EuiFlexItem grow={false}>
-                        <EuiButton
-                          fullWidth={false}
-                          onClick={() => addSampledata()}
-                          data-test-subj="actionAddSamples"
-                        >
-                          Add samples
-                        </EuiButton>
-                      </EuiFlexItem>
-                    </EuiFlexGroup>
-                    <EuiSpacer size="xxl" />
-                  </>
-                )}
-              </EuiFlexItem>
-            </EuiFlexGroup>
-          </EuiPageContent>
-        </EuiPageBody>
-      </EuiPage>
-      {isModalVisible && modalLayout}
+                      <EuiSpacer size="m" />
+                      <EuiFlexGroup justifyContent="center">
+                        <EuiFlexItem grow={false}>
+                          <EuiButton
+                            fullWidth={false}
+                            onClick={() => history.push(`/event_analytics/explorer`)}
+                            data-test-subj="actionEventExplorer"
+                          >
+                            Event Explorer
+                          </EuiButton>
+                        </EuiFlexItem>
+                        <EuiFlexItem grow={false}>
+                          <EuiButton
+                            fullWidth={false}
+                            onClick={() => addSampledata()}
+                            data-test-subj="actionAddSamples"
+                          >
+                            Add samples
+                          </EuiButton>
+                        </EuiFlexItem>
+                      </EuiFlexGroup>
+                      <EuiSpacer size="xxl" />
+                    </>
+                  )}
+                </EuiFlexItem>
+              </EuiFlexGroup>
+            </EuiPageContent>
+          </EuiPageBody>
+        </EuiPage>
+        {isModalVisible && modalLayout}
+      </ErrorBoundary>
     </>
   );
 };

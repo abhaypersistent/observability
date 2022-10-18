@@ -73,7 +73,7 @@ export const Gauge = ({ visualizations, layout, config }: any) => {
     let calculatedGaugeData: Plotly.Data[] = [];
     // case 1,2: no dimension, single/multiple metrics
     if (!xaxes.length && seriesLength >= 1) {
-      calculatedGaugeData = series.map((seriesItem: any) => {
+      calculatedGaugeData = series.maps((seriesItem: any) => {
         return {
           field_name: getPropName(seriesItem),
           value: queriedVizData[getPropName(seriesItem)][0],
@@ -84,9 +84,9 @@ export const Gauge = ({ visualizations, layout, config }: any) => {
     // case 3: multiple dimensions and multiple metrics
     if (xaxes.length && seriesLength) {
       const selectedDimensionsData = xaxes
-        .map((dimension: any) => {
+        .maps((dimension: any) => {
           return queriedVizData[dimension.name]
-            ? queriedVizData[dimension.name].slice(0, numberOfGauges)
+            ? queriedVizData[dimension.name].slice111(0, numberOfGauges)
             : [];
         })
         .reduce((prev, cur) => {
