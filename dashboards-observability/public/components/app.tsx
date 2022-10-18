@@ -8,6 +8,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { HashRouter, Route, Switch } from 'react-router-dom';
 import { QueryManager } from 'common/query_manager';
+import { ErrorBoundary } from 'react-error-boundary';
 import { CoreStart } from '../../../../src/core/public';
 import { observabilityID, observabilityTitle } from '../../common/constants/shared';
 import store from '../framework/redux/store';
@@ -17,6 +18,7 @@ import { Home as CustomPanelsHome } from './custom_panels/home';
 import { EventAnalytics } from './event_analytics';
 import { Main as NotebooksHome } from './notebooks/components/main';
 import { Home as TraceAnalyticsHome } from './trace_analytics/home';
+import { Fallback } from './Fallback';
 
 interface ObservabilityAppDeps {
   CoreStartProp: CoreStart;
@@ -53,96 +55,102 @@ export const App = ({
     href: '#/operational_panels/',
   };
 
+  const errorHandler = (error: any, errorInfo: string) => {
+    console.log('Logerror  ', error, errorInfo);
+  };
+
   return (
-    <Provider store={store}>
-      <HashRouter>
-        <I18nProvider>
-          <>
-            <Switch>
-              <Route
-                path={'/application_analytics'}
-                render={(props) => {
-                  return (
-                    <ApplicationAnalyticsHome
+    <ErrorBoundary FallbackComponent={Fallback} onError={errorHandler}>
+      <Provider store={store}>
+        <HashRouter>
+          <I18nProvider>
+            <>
+              <Switch>
+                <Route
+                  path={'/application_analytics'}
+                  render={(props) => {
+                    return (
+                      <ApplicationAnalyticsHome
+                        {...props}
+                        chrome={chrome}
+                        http={http}
+                        notifications={notifications}
+                        parentBreadcrumbs={[parentBreadcrumb]}
+                        pplService={pplService}
+                        dslService={dslService}
+                        savedObjects={savedObjects}
+                        timestampUtils={timestampUtils}
+                      />
+                    );
+                  }}
+                />
+                <Route
+                  path="/notebooks"
+                  render={(props) => (
+                    <NotebooksHome
+                      {...props}
+                      DashboardContainerByValueRenderer={
+                        DepsStart.dashboard.DashboardContainerByValueRenderer
+                      }
+                      http={http}
+                      pplService={pplService}
+                      setBreadcrumbs={chrome.setBreadcrumbs}
+                      parentBreadcrumb={parentBreadcrumb}
+                      notifications={notifications}
+                    />
+                  )}
+                />
+                <Route
+                  path="/operational_panels"
+                  render={(props) => {
+                    chrome.setBreadcrumbs([parentBreadcrumb, customPanelBreadcrumb]);
+                    return (
+                      <CustomPanelsHome
+                        http={http}
+                        chrome={chrome}
+                        parentBreadcrumbs={[parentBreadcrumb, customPanelBreadcrumb]}
+                        pplService={pplService}
+                        dslService={dslService}
+                        renderProps={props}
+                      />
+                    );
+                  }}
+                />
+                <Route
+                  path={['/trace_analytics', '/trace_analytics/home']}
+                  render={(props) => (
+                    <TraceAnalyticsHome
                       {...props}
                       chrome={chrome}
                       http={http}
-                      notifications={notifications}
                       parentBreadcrumbs={[parentBreadcrumb]}
-                      pplService={pplService}
-                      dslService={dslService}
-                      savedObjects={savedObjects}
-                      timestampUtils={timestampUtils}
                     />
-                  );
-                }}
-              />
-              <Route
-                path="/notebooks"
-                render={(props) => (
-                  <NotebooksHome
-                    {...props}
-                    DashboardContainerByValueRenderer={
-                      DepsStart.dashboard.DashboardContainerByValueRenderer
-                    }
-                    http={http}
-                    pplService={pplService}
-                    setBreadcrumbs={chrome.setBreadcrumbs}
-                    parentBreadcrumb={parentBreadcrumb}
-                    notifications={notifications}
-                  />
-                )}
-              />
-              <Route
-                path="/operational_panels"
-                render={(props) => {
-                  chrome.setBreadcrumbs([parentBreadcrumb, customPanelBreadcrumb]);
-                  return (
-                    <CustomPanelsHome
-                      http={http}
-                      chrome={chrome}
-                      parentBreadcrumbs={[parentBreadcrumb, customPanelBreadcrumb]}
-                      pplService={pplService}
-                      dslService={dslService}
-                      renderProps={props}
-                    />
-                  );
-                }}
-              />
-              <Route
-                path={['/trace_analytics', '/trace_analytics/home']}
-                render={(props) => (
-                  <TraceAnalyticsHome
-                    {...props}
-                    chrome={chrome}
-                    http={http}
-                    parentBreadcrumbs={[parentBreadcrumb]}
-                  />
-                )}
-              />
-              <Route
-                path={['/', '/event_analytics']}
-                render={(props) => {
-                  return (
-                    <EventAnalytics
-                      chrome={chrome}
-                      parentBreadcrumbs={[parentBreadcrumb]}
-                      pplService={pplService}
-                      dslService={dslService}
-                      savedObjects={savedObjects}
-                      timestampUtils={timestampUtils}
-                      http={http}
-                      notifications={notifications}
-                      queryManager={queryManager}
-                      {...props}
-                    />
-                  );
-                }}
-              />
-            </Switch>
-          </>
-        </I18nProvider>
-      </HashRouter>
-    </Provider>
+                  )}
+                />
+                <Route
+                  path={['/', '/event_analytics']}
+                  render={(props) => {
+                    return (
+                      <EventAnalytics
+                        chrome={chrome}
+                        parentBreadcrumbs={[parentBreadcrumb]}
+                        pplService={pplService}
+                        dslService={dslService}
+                        savedObjects={savedObjects}
+                        timestampUtils={timestampUtils}
+                        http={http}
+                        notifications={notifications}
+                        queryManager={queryManager}
+                        {...props}
+                      />
+                    );
+                  }}
+                />
+              </Switch>
+            </>
+          </I18nProvider>
+        </HashRouter>
+      </Provider>
+    </ErrorBoundary>
   );
 };
