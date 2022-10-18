@@ -60,9 +60,9 @@ export const App = ({
   };
 
   return (
-    <Provider store={store}>
-      <HashRouter>
-        <ErrorBoundary FallbackComponent={Fallback} onError={errorHandler}>
+    <ErrorBoundary FallbackComponent={Fallback} onError={errorHandler}>
+      <Provider store={store}>
+        <HashRouter>
           <I18nProvider>
             <>
               <Switch>
@@ -149,8 +149,8 @@ export const App = ({
               </Switch>
             </>
           </I18nProvider>
-        </ErrorBoundary>
-      </HashRouter>
-    </Provider>
+        </HashRouter>
+      </Provider>
+    </ErrorBoundary>
   );
 };
