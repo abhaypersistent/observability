@@ -99,6 +99,7 @@
 
 .explorerFieldSelector {
   padding: $euiSizeS;
+  width: 230px;
 }
 
 #vis__mainContent {
@@ -110,10 +111,11 @@
     .explorerFieldSelector, .explorer__vizDataConfig {
       padding: $euiSizeS;
       overflow: auto;
+      width: 230px;
   
       &__fieldGroups {
         @include euiYScrollWithShadows;
-  
+        
         overflow-y: auto;
         margin-right: -$euiSizeS;
         padding-right: $euiSizeS;
@@ -139,4 +141,8 @@
 
 .ws__configPanel--right{
   overflow-y: unset;
+}
+
+.euiResizablePanel--first{
+  width: 460px !important;
 }

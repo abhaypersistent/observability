@@ -100,8 +100,7 @@ export const ExplorerVisualizations = ({
           <>
             <EuiResizablePanel
               initialSize={20}
-              minSize="17%"
-              mode={['collapsible', { position: 'top' }]}
+              minSize="460px"
               paddingSize="none"
               className="vis__leftPanel"
             >
@@ -126,7 +125,6 @@ export const ExplorerVisualizations = ({
                 <div className="explorer__vizDataConfig">{renderDataConfigContainer()}</div>
               </div>
             </EuiResizablePanel>
-            <EuiResizableButton />
             <EuiResizablePanel
               className="ws__central--canvas"
               initialSize={60}
