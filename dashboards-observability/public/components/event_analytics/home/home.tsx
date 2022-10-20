@@ -60,7 +60,7 @@ import { setSelectedQueryTab } from '../redux/slices/query_tab_slice';
 import { CUSTOM_PANELS_API_PREFIX } from '../../../../common/constants/custom_panels';
 import { getSampleDataModal } from '../../common/helpers/add_sample_modal';
 import { parseGetSuggestions, onItemSelect } from '../../common/search/autocomplete_logic';
-import { Fallback } from '../../Fallback';
+import { Fallback } from '../../common/helpers/Fallback';
 
 interface IHomeProps {
   pplService: any;
