@@ -18,7 +18,7 @@ import {
   EuiModalHeader,
   EuiModalHeaderTitle,
   EuiText,
-  EuiSpacer
+  EuiSpacer,
 } from '@elastic/eui';
 import { CustomInputModal } from './custom_modals/custom_input_modal';
 
@@ -38,7 +38,7 @@ export const getCustomModal = (
   btn1txt: string,
   btn2txt: string,
   openNoteName?: string,
-  helpText?: string,
+  helpText?: string
 ) => {
   return (
     <CustomInputModal
@@ -92,7 +92,10 @@ export const getSampleNotebooksModal = (
         confirmButtonText="Yes"
         defaultFocusedButton="confirm"
       >
-        <p>Do you want to add sample notebooks? This will also add Dashboards sample flights and logs data if they have not been added.</p>
+        <p>
+          Do you want to add sample notebooks? This will also add Dashboards sample flights and logs
+          data if they have not been added.
+        </p>
       </EuiConfirmModal>
     </EuiOverlayMask>
   );
@@ -105,7 +108,7 @@ export const getDeleteModal = (
   onConfirm: (event?: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void,
   title: string,
   message: string,
-  confirmMessage?: string,
+  confirmMessage?: string
 ) => {
   return (
     <EuiOverlayMask>
@@ -114,7 +117,7 @@ export const getDeleteModal = (
         onCancel={onCancel}
         onConfirm={onConfirm}
         cancelButtonText="Cancel"
-        confirmButtonText={confirmMessage || "Delete"}
+        confirmButtonText={confirmMessage || 'Delete'}
         buttonColor="danger"
         defaultFocusedButton="confirm"
       >
