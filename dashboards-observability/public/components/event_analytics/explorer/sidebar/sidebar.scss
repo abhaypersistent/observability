@@ -103,6 +103,7 @@
 }
 
 #vis__mainContent {
+  display: flex;
   .explorer__insights {
     min-height: 0;
     display: grid;
@@ -143,6 +144,7 @@
   overflow-y: unset;
 }
 
-.euiResizablePanel--first{
-  width: 460px !important;
+.vis__leftPanel{
+  width: 460px;
+  height: calc(100vh - 298px);
 }
