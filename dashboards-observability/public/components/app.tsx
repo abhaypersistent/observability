@@ -18,11 +18,7 @@ import { Home as CustomPanelsHome } from './custom_panels/home';
 import { EventAnalytics } from './event_analytics';
 import { Main as NotebooksHome } from './notebooks/components/main';
 import { Home as TraceAnalyticsHome } from './trace_analytics/home';
-<<<<<<< HEAD
 import { Fallback } from './common/helpers/Fallback';
-=======
-import { Fallback } from './Fallback';
->>>>>>> 23df6b4 (initial error boundary)
 
 interface ObservabilityAppDeps {
   CoreStartProp: CoreStart;
@@ -64,9 +60,9 @@ export const App = ({
   };
 
   return (
-    <ErrorBoundary FallbackComponent={Fallback} onError={errorHandler}>
-      <Provider store={store}>
-        <HashRouter>
+    <Provider store={store}>
+      <HashRouter>
+        <ErrorBoundary FallbackComponent={Fallback} onError={errorHandler}>
           <I18nProvider>
             <>
               <Switch>
@@ -153,8 +149,8 @@ export const App = ({
               </Switch>
             </>
           </I18nProvider>
-        </HashRouter>
-      </Provider>
-    </ErrorBoundary>
+        </ErrorBoundary>
+      </HashRouter>
+    </Provider>
   );
 };
