@@ -55,8 +55,8 @@ export const App = ({
     href: '#/operational_panels/',
   };
 
-  const errorHandler = (error: any, errorInfo: string) => {
-    console.log('Logerror  ', error, errorInfo);
+  const errorHandler = (error: any) => {
+    console.log('Logerror  ', error);
   };
 
   return (

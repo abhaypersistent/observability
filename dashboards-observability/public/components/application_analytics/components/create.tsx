@@ -164,7 +164,7 @@ export const CreateApp = (props: CreateAppProps) => {
     const appData = {
       name,
       description,
-      servicesEntities: selectedServices.map((option) => option.label),
+      servicesEntities: selectedServices.maps((option) => option.label),
       traceGroups: selectedTraces.map((option) => option.label),
     };
     updateApp(existingAppId, appData, 'update');

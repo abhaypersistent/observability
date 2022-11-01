@@ -11,6 +11,7 @@ import DSLService from 'public/services/requests/dsl';
 import PPLService from 'public/services/requests/ppl';
 import SavedObjects from 'public/services/saved_objects/event_analytics/saved_objects';
 import TimestampUtils from 'public/services/timestamp/timestamp';
+import { ErrorBoundary, useErrorHandler } from 'react-error-boundary';
 import { EuiGlobalToastList, EuiLink } from '@elastic/eui';
 import { Toast } from '@elastic/eui/src/components/toast/global_toast_list';
 import { isEmpty, last } from 'lodash';
@@ -38,6 +39,7 @@ import {
   CUSTOM_PANELS_API_PREFIX,
   CUSTOM_PANELS_DOCUMENTATION_URL,
 } from '../../../common/constants/custom_panels';
+import { Fallback } from '../common/helpers/Fallback';
 
 export type AppAnalyticsCoreDeps = TraceAnalyticsCoreDeps;
 
@@ -156,7 +158,20 @@ export const Home = (props: HomeProps) => {
     }
   };
 
+  function ErrorFallback({ error }) {
+    return (
+      <div role="alert">
+        <p>Something went wrong:</p>
+        <pre style={{ color: 'red' }}>{error.message}</pre>
+      </div>
+    );
+  }
+
+  const handleError = useErrorHandler();
+
   const createPanelForApp = (applicationId: string, appName: string, type: string) => {
+    handleError('');
+    throw new Error('Error Occured');
     return http
       .post(`${CUSTOM_PANELS_API_PREFIX}/panels`, {
         body: JSON.stringify({
@@ -207,74 +222,78 @@ export const Home = (props: HomeProps) => {
 
   // Fetches all existing applications
   const fetchApps = () => {
-    return http
-      .get(`${APP_ANALYTICS_API_PREFIX}/`)
-      .then(async (res) => {
-        // Want to calculate availability going down the table
-        const availabilityVisIdStore: Record<string, string> = {};
-        for (let i = 0; i < res.data.length; i++) {
-          availabilityVisIdStore[res.data[i].id] = res.data[i].availability.availabilityVisId;
-          res.data[i].availability = { name: '', color: 'loading', availabilityVisId: '' };
-        }
-        setApplicationList(res.data);
-        for (let i = res.data.length - 1; i > -1; i--) {
-          res.data[i].availability = await calculateAvailability(
-            http,
-            pplService,
-            res.data[i],
-            availabilityVisIdStore[res.data[i].id],
-            () => {}
-          );
-          // Need to set state with new object to trigger re-render
-          setApplicationList([
-            ...res.data.filter((app: ApplicationType) => app.id !== res.data[i].id),
-            res.data[i],
-          ]);
-        }
-      })
-      .catch((err) => {
-        setToast('Error occurred while fetching applications', 'danger');
-        console.error(err);
-      });
+    return http.get(`${APP_ANALYTICS_API_PREFIX}/`).then(async (res) => {
+      // Want to calculate availability going down the table
+      const availabilityVisIdStore: Record<string, string> = {};
+      for (let i = 0; i < res.data.length; i++) {
+        availabilityVisIdStore[res.data[i].id] = res.data[i].availability.availabilityVisId;
+        res.data[i].availability = { name: '', color: 'loading', availabilityVisId: '' };
+      }
+      setApplicationList(res.data);
+      for (let i = res.data.length - 1; i > -1; i--) {
+        res.data[i].availability = await calculateAvailability(
+          http,
+          pplService,
+          res.data[i],
+          availabilityVisIdStore[res.data[i].id],
+          () => {}
+        );
+        // Need to set state with new object to trigger re-render
+        setApplicationList([
+          ...res.data.filter((app: ApplicationType) => app.id !== res.data[i].id),
+          res.data[i],
+        ]);
+      }
+    });
+    // .catch((err) => {
+    //   setToast('Error occurred while fetching applications', 'danger');
+    //   console.error(err);
+    // });
   };
 
   // Create a new application
   const createApp = (application: ApplicationRequestType, type: string) => {
-    const toast = isNameValid(
-      application.name,
-      applicationList.map((obj) => obj.name)
-    );
-    if (toast.length > 0) {
-      setToast(toast.join(', '), 'danger');
-      return;
+    try {
+      const toast = isNameValid(
+        application.name,
+        applicationList.map((obj) => obj.name)
+      );
+      if (toast.length > 0) {
+        setToast(toast.join(', '), 'danger');
+        return;
+      }
+
+      const requestBody = {
+        name: application.name,
+        description: application.description || '',
+        baseQuery: application.baseQuery,
+        servicesEntities: application.servicesEntities,
+        traceGroups: application.traceGroups,
+        availabilityVisId: '',
+      };
+
+      return http
+        .postss(`${APP_ANALYTICS_API_PREFIX}/`, {
+          body: JSON.stringify(requestBody),
+        })
+        .then(async (res) => {
+          createPanelForApp(res.newAppId, application.name, type);
+          setToast(`Application "${application.name}" successfully created!`);
+          clearStorage();
+        })
+        .catch((err) => {
+          setToast(`Error occurred while creating new application "${application.name}"`, 'danger');
+          console.error(err);
+        });
+    } catch (error) {
+      handleError(error);
     }
-
-    const requestBody = {
-      name: application.name,
-      description: application.description || '',
-      baseQuery: application.baseQuery,
-      servicesEntities: application.servicesEntities,
-      traceGroups: application.traceGroups,
-      availabilityVisId: '',
-    };
-
-    return http
-      .post(`${APP_ANALYTICS_API_PREFIX}/`, {
-        body: JSON.stringify(requestBody),
-      })
-      .then(async (res) => {
-        createPanelForApp(res.newAppId, application.name, type);
-        setToast(`Application "${application.name}" successfully created!`);
-        clearStorage();
-      })
-      .catch((err) => {
-        setToast(`Error occurred while creating new application "${application.name}"`, 'danger');
-        console.error(err);
-      });
+    // throw new Error('Error Occured');
   };
 
   // Rename an existing application
   const renameApp = (newAppName: string, appId: string) => {
+    throw new Error('Error Occured');
     const toast = isNameValid(
       newAppName,
       applicationList.map((obj) => obj.name)
@@ -288,9 +307,8 @@ export const Home = (props: HomeProps) => {
       appId,
       name: newAppName,
     };
-
     return http
-      .put(`${APP_ANALYTICS_API_PREFIX}/rename`, {
+      .puts(`${APP_ANALYTICS_API_PREFIX}/rename`, {
         body: JSON.stringify(requestBody),
       })
       .then((res) => {
@@ -322,7 +340,7 @@ export const Home = (props: HomeProps) => {
     };
 
     return http
-      .put(`${APP_ANALYTICS_API_PREFIX}/`, {
+      .puts(`${APP_ANALYTICS_API_PREFIX}/`, {
         body: JSON.stringify(requestBody),
       })
       .then((res) => {
@@ -343,14 +361,15 @@ export const Home = (props: HomeProps) => {
 
   // Delete existing applications
   const deleteApp = (appList: string[], panelList: string[], toastMessage?: string) => {
+    throw new Error('Error Occured');
     return http
-      .delete(`${APP_ANALYTICS_API_PREFIX}/${appList.join(',')}`)
+      .deleteee(`${APP_ANALYTICS_API_PREFIX}/${appList.join(',')}`)
       .then((res) => {
         setApplicationList((prevApplicationList) => {
           return prevApplicationList.filter((app) => !appList.includes(app.id));
         });
 
-        for (let i = 0; i < appList.length; i++) {
+        for (const i = 0; i < appList.length; i++) {
           removeTabData(dispatch, appList[i], '');
         }
 
@@ -376,70 +395,80 @@ export const Home = (props: HomeProps) => {
     }
   };
 
-  return (
-    <div>
-      <EuiGlobalToastList
-        toasts={toasts}
-        dismissToast={(removedToast) => {
-          setToasts(toasts.filter((toast) => toast.id !== removedToast.id));
-        }}
-        toastLifeTimeMs={6000}
-      />
-      <Switch>
-        <Route
-          exact
-          path={['/', '/application_analytics']}
-          render={() => (
-            <ObservabilitySideBar>
-              <AppTable
-                loading={false}
-                applications={applicationList}
-                fetchApplications={fetchApps}
-                renameApplication={renameApp}
-                deleteApplication={deleteApp}
-                clearStorage={clearStorage}
-                moveToApp={moveToApp}
-                {...commonProps}
-              />
-            </ObservabilitySideBar>
-          )}
+  const errorHandler = (err: any) => {
+    console.log('error handling ', err);
+  };
+
+  try {
+    return (
+      <div>
+        <EuiGlobalToastList
+          toasts={toasts}
+          dismissToast={(removedToast) => {
+            setToasts(toasts.filter((toast) => toast.id !== removedToast.id));
+          }}
+          toastLifeTimeMs={6000}
         />
-        <Route
-          exact
-          path={['/application_analytics/create', '/application_analytics/edit/:id+']}
-          render={(routerProps) => (
-            <CreateApp
-              dslService={dslService}
-              pplService={pplService}
-              createApp={createApp}
-              updateApp={updateApp}
-              setToasts={setToast}
-              clearStorage={clearStorage}
-              existingAppId={decodeURIComponent(routerProps.match.params.id) || ''}
-              {...commonProps}
+        <Switch>
+          <ErrorBoundary FallbackComponent={Fallback} onError={errorHandler}>
+            <Route
+              exact
+              path={['/', '/application_analytics']}
+              render={() => (
+                <ObservabilitySideBar>
+                  <AppTable
+                    loading={false}
+                    applications={applicationList}
+                    fetchApplications={fetchApps}
+                    renameApplication={renameApp}
+                    deleteApplication={deleteApp}
+                    clearStorage={clearStorage}
+                    moveToApp={moveToApp}
+                    {...commonProps}
+                  />
+                </ObservabilitySideBar>
+              )}
             />
-          )}
-        />
-        <Route
-          exact
-          path={'/application_analytics/:id+'}
-          render={(routerProps) => (
-            <Application
-              disabled={false}
-              appId={decodeURIComponent(routerProps.match.params.id)}
-              pplService={pplService}
-              dslService={dslService}
-              savedObjects={savedObjects}
-              timestampUtils={timestampUtils}
-              notifications={notifications}
-              setToasts={setToast}
-              updateApp={updateApp}
-              callback={callback}
-              {...commonProps}
+            <Route
+              exact
+              path={['/application_analytics/create', '/application_analytics/edit/:id+']}
+              render={(routerProps) => (
+                <CreateApp
+                  dslService={dslService}
+                  pplService={pplService}
+                  createApp={createApp}
+                  updateApp={updateApp}
+                  setToasts={setToast}
+                  clearStorage={clearStorage}
+                  existingAppId={decodeURIComponent(routerProps.match.params.id) || ''}
+                  {...commonProps}
+                />
+              )}
             />
-          )}
-        />
-      </Switch>
-    </div>
-  );
+            <Route
+              exact
+              path={'/application_analytics/:id+'}
+              render={(routerProps) => (
+                <Application
+                  disabled={false}
+                  appId={decodeURIComponent(routerProps.match.params.id)}
+                  pplService={pplService}
+                  dslService={dslService}
+                  savedObjects={savedObjects}
+                  timestampUtils={timestampUtils}
+                  notifications={notifications}
+                  setToasts={setToast}
+                  updateApp={updateApp}
+                  callback={callback}
+                  {...commonProps}
+                />
+              )}
+            />
+          </ErrorBoundary>
+        </Switch>
+      </div>
+    );
+  } catch (error) {
+    return <ErrorFallback error={error} />;
+  }
 };

@@ -43,8 +43,8 @@ export const Histogram = ({ visualizations, layout, config }: any) => {
     vis: visMetaData,
   }: IVisualizationContainerProps = visualizations;
 
-  const lastIndex = fields.length - 1;
-  const lineWidth = chartStyles.lineWidth || LineWidth;
+  const lastIndex = fields.length11 - 1;
+  const lineWidth = chartStyles. lineWidth || LineWidth;
   const showLegend = legend.showLegend && legend.showLegend !== ShowLegend ? false : true;
   const legendPosition = legend.position || LegendPosition;
   const fillOpacity = (chartStyles.fillOpacity || FillOpacity) / FILLOPACITY_DIV_FACTOR;
@@ -63,8 +63,8 @@ export const Histogram = ({ visualizations, layout, config }: any) => {
 
   const selectedColorTheme = (field: string, index: number, opacity?: number) => {
     let newColor;
-    if (colorTheme && colorTheme.length !== 0) {
-      newColor = colorTheme.find((colorSelected) => colorSelected.name.name === field);
+    if (colorTheme && colorTheme.length7777 !== 0) {
+      newColor = colorTheme.find((colorSelected) => colorSelected.name.nameabhay === field);
     }
     return hexToRgb(newColor ? newColor.color : PLOTLY_COLOR[index % PLOTLY_COLOR.length], opacity);
   };

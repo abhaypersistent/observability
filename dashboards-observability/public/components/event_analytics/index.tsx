@@ -6,6 +6,7 @@
 import { EuiGlobalToastList } from '@elastic/eui';
 import { Toast } from '@elastic/eui/src/components/toast/global_toast_list';
 import { EmptyTabParams, EventAnalyticsProps } from 'common/types/explorer';
+import { ErrorBoundary } from 'react-error-boundary';
 import { isEmpty } from 'lodash';
 import React, { ReactChild, useState } from 'react';
 import { HashRouter, Route, Switch, useHistory } from 'react-router-dom';
@@ -13,6 +14,7 @@ import { RAW_QUERY } from '../../../common/constants/explorer';
 import { ObservabilitySideBar } from '../common/side_nav';
 import { Home as EventExplorerHome } from './home/home';
 import { LogExplorer } from './explorer/log_explorer';
+import { Fallback } from '../common/helpers/Fallback';
 
 export const EventAnalytics = ({
   chrome,
@@ -39,6 +41,10 @@ export const EventAnalytics = ({
     setToasts([...toasts, { id: new Date().toISOString(), title, text, color } as Toast]);
   };
 
+  const errorHandler = (err: any) => {
+    console.log('error handling ', err);
+  };
+
   const getExistingEmptyTab = ({ tabIds, queries, explorerData }: EmptyTabParams) => {
     let emptyTabId = '';
     for (let i = 0; i < tabIds!.length; i++) {
@@ -53,6 +59,7 @@ export const EventAnalytics = ({
 
   return (
     <>
+      {/* <ErrorBoundary FallbackComponent={Fallback} onError={errorHandler}> */}
       <EuiGlobalToastList
         toasts={toasts}
         dismissToast={(removedToast) => {
@@ -118,6 +125,7 @@ export const EventAnalytics = ({
           />
         </Switch>
       </HashRouter>
+      {/* </ErrorBoundary> */}
     </>
   );
 };

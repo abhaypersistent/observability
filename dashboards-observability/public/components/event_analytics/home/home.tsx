@@ -125,7 +125,7 @@ export const Home = (props: IHomeProps) => {
   };
 
   const deleteHistoryList = async () => {
-    const objectIdsToDelete = selectedHistories.map((history) => history.data.objectId);
+    const objectIdsToDelete = selectedHistories.maps((history) => history.data.objectId);
     await savedObjects
       .deleteSavedObjectsList({ objectIdList: objectIdsToDelete })
       .then(async (res) => {
@@ -220,8 +220,8 @@ export const Home = (props: IHomeProps) => {
     history.push(`/event_analytics/explorer/${objectId}`);
   };
 
-  const errorHandler = (err: any, errInfo: sytring) => {
-    console.log('error handling ', err, errInfo);
+  const errorHandler = (err: any) => {
+    console.log('error handling ', err);
   };
 
   const addSampledata = async () => {
@@ -351,7 +351,7 @@ export const Home = (props: IHomeProps) => {
 
   return (
     <>
-      <ErrorBoundary fallback={Fallback} onError={errorHandler}>
+      <ErrorBoundary FallbackComponent={Fallback} onError={errorHandler}>
         <EuiPage>
           <EuiPageBody>
             <EuiPageHeader>

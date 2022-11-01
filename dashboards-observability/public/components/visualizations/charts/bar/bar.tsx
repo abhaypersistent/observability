@@ -92,10 +92,74 @@ export const Bar = ({ visualizations, layout, config }: any) => {
     (colorTheme.length > 0 &&
       colorTheme.find((colorSelected) => colorSelected.name.label === field)?.color) ||
     PLOTLY_COLOR[index % PLOTLY_COLOR.length];
-  // If chart has length of result buckets < 16
-  // then use the LONG_CHART_COLOR for all the bars in the chart
-  const plotlyColorway =
-    queriedVizData[fields[lastIndex].name].length < 16 ? PLOTLY_COLOR : [LONG_CHART_COLOR];
+
+  let bars;
+
+  /**
+   * determine x axis
+   */
+  const xaxes = useMemo(() => {
+    // breakdown selections
+    if (breakdowns.length > 0) {
+      return [
+        ...dimensions.filter(
+          (dimension) => !some(breakdowns, (breakdown) => breakdown.label === dimension.label)
+        ),
+      ];
+    }
+
+    // span selection
+    const timestampField = find(fields, (field) => field.type === 'timestamp');
+    if (span && span.time_field && timestampField) {
+      return [timestampField, ...dimensions];
+    }
+
+    return [...dimensions];
+  }, [dimensions, breakdowns]);
+
+  /**
+   * determine y axis
+   */
+  const yaxes = useMemo(() => {
+    return Array.isArray(series) ? [...series] : [];
+  }, [series]);
+
+  /**
+   * prepare data for visualization, map x-xais to y-xais
+   */
+  const chartAxis = useMemo(() => {
+    return yaxes.length > 0 && Array.isArray(queriedVizData[getPropName(yaxes[0])])
+      ? queriedVizData[getPropName(yaxes[0])].map((_, idx) => {
+          // let combineXaxis = '';
+          const xaxisName = xaxes.map((xaxis) => {
+            return queriedVizData[xaxis.name] && queriedVizData[xaxis.name][idx]
+              ? queriedVizData[xaxis.name][idx]
+              : '';
+          });
+          return xaxisName.join(', ');
+        })
+      : [];
+  }, [queriedVizData, xaxes, yaxes]);
+
+  bars = yaxes?.map((yMetric, idx) => {
+    const selectedColor = getSelectedColorTheme(getPropName(yMetric), idx);
+    const fillColor = hexToRgb(selectedColor, fillOpacity);
+    return {
+      y: isVertical ? queriedVizData[getPropName(yMetric)] : chartAxis,
+      x: isVertical ? chartAxis : queriedVizData[getPropName(yMetric)],
+      type: type,
+      marker: {
+        color: fillColor,
+        line: {
+          color: selectedColor,
+          width: lineWidth,
+        },
+      },
+      name: getPropName(yMetric),
+      orientation: barOrientation,
+      hoverinfo: tooltipMode === 'hidden' ? 'none' : tooltipText,
+    };
+  });
 
   if (
     isEmpty(queriedVizData) ||

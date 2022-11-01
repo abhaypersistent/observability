@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { EuiOverlayMask } from '@elastic/eui';
 import { useHistory } from 'react-router-dom';
+import { EuiGlobalToastList } from '@elastic/eui';
 import { FallbackModal } from './fallback_modal';
 
 export const Fallback = (error: any, resetErrorBoundary: any) => {
   const [modalLayout, setModalLayout] = useState(<EuiOverlayMask />);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [toasts, setToasts] = useState([]);
   const pathName = window.location.pathname.split('app');
   const history = useHistory();
 
@@ -38,6 +40,21 @@ export const Fallback = (error: any, resetErrorBoundary: any) => {
     return '';
   };
 
+  const toastLists: any = [
+    {
+      title: 'Oops, there was an error',
+      color: 'danger',
+      iconType: 'help',
+      text: `${error?.error?.message}`,
+      toastLifeTimeMs: 1500,
+    },
+  ];
+
+  const addToastHandler = () => {
+    showModal();
+    setToasts(toasts.concat(toastLists[0]));
+  };
+
   const redirectedPage: any = {
     event_analytics: 'Event Analytics',
     application_analytics: 'Application Analytics',
@@ -47,11 +64,18 @@ export const Fallback = (error: any, resetErrorBoundary: any) => {
   };
 
   useEffect(() => {
-    showFallbackModel();
+    console.log('0000---------------------------------------------------111111111111');
+    console.log(error);
+    console.log('0000---------------------------------------------------111111111111');
+    addToastHandler();
   }, []);
 
   const closeModal = () => {
     setIsModalVisible(false);
+  };
+
+  const removeToast = () => {
+    setToasts([]);
   };
 
   const showModal = () => {
@@ -69,5 +93,12 @@ export const Fallback = (error: any, resetErrorBoundary: any) => {
     );
     showModal();
   };
-  return <>{isModalVisible && modalLayout}</>;
+
+  return (
+    <>
+      {isModalVisible && (
+        <EuiGlobalToastList toasts={toasts} dismissToast={removeToast} toastLifeTimeMs={6000} />
+      )}
+    </>
+  );
 };

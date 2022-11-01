@@ -131,7 +131,7 @@ export const fetchAppById = async (
       setFilters([...serviceFilters, ...traceFilters]);
     })
     .catch((err) => {
-      setToasts('Error occurred while fetching application', 'danger');
+      setToasts('Error occurred while fetching application111', 'danger');
       console.error(err);
     });
 };
