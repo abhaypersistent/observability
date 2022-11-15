@@ -509,6 +509,7 @@ export const EXPLORER_VISUALIZATIONS = {
     fields: [
       { name: 'count()', type: 'integer' },
       { name: 'tags', type: 'text' },
+      { name: 'timesfield', type: 'timestamp' },
     ],
     size: 6,
     status: 200,
@@ -550,8 +551,20 @@ export const PIE_TEST_VISUALIZATIONS_DATA = {
 };
 
 export const GAUGE_TEST_VISUALIZATIONS_DATA = {
-  ...TEST_VISUALIZATIONS_DATA,
-  vis: createGaugeTypeDefinition(),
+  data: {
+    appData: { fromApp: false },
+    defaultAxes: {},
+    indexFields: EXPLORER_FIELDS,
+    query: {},
+    exlorer: {},
+    rawVizData: EXPLORER_VISUALIZATIONS,
+    userConfigs: {
+      dataConfig: {
+        valueOptions: VALUE_OPTIONS,
+      },
+    },
+  },
+  vis: createGaugeTypeDefinition({}),
 };
 
 export const METRICS_TEST_VISUALIZATIONS_DATA = {
